@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, CheckCircle2, AlertTriangle, XCircle, ChevronDown, History } from 'lucide-react';
+import { Clock, CheckCircle2, AlertTriangle, XCircle, ChevronDown, History, MessageSquare } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { TrustStatus } from './types';
 
 interface DiagnosticAlert {
@@ -54,6 +55,34 @@ export function AlertHistoryTimeline() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [resolveNote, setResolveNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleResolve(alertId: string) {
+    if (!resolveNote.trim()) {
+      toast.error('Please enter a resolution note');
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase
+      .from('diagnostic_alerts')
+      .update({
+        resolved: true,
+        resolved_at: new Date().toISOString(),
+        resolution_note: resolveNote.trim(),
+      })
+      .eq('id', alertId);
+
+    if (error) {
+      toast.error('Failed to resolve alert');
+    } else {
+      toast.success('Alert resolved');
+      setResolvingId(null);
+      setResolveNote('');
+    }
+    setSubmitting(false);
+  }
 
   useEffect(() => {
     async function fetchAlerts() {
@@ -241,6 +270,44 @@ export function AlertHistoryTimeline() {
                                   )}
                                 </div>
                                 <p className="text-foreground/70">{alert.resolution_note}</p>
+                              </div>
+                            )}
+                            {!alert.resolved && (
+                              <div className="pt-2 border-t border-border">
+                                {resolvingId === alert.id ? (
+                                  <div className="space-y-2">
+                                    <textarea
+                                      value={resolveNote}
+                                      onChange={(e) => setResolveNote(e.target.value)}
+                                      placeholder="Describe how this was resolved..."
+                                      className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                                      rows={2}
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleResolve(alert.id); }}
+                                        disabled={submitting}
+                                        className="px-2.5 py-1 rounded bg-trust-healthy/15 text-trust-healthy text-[10px] font-mono font-medium hover:bg-trust-healthy/25 transition-colors disabled:opacity-50"
+                                      >
+                                        {submitting ? 'Saving...' : 'Confirm Resolve'}
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setResolvingId(null); setResolveNote(''); }}
+                                        className="px-2.5 py-1 rounded text-muted-foreground text-[10px] font-mono hover:text-foreground transition-colors"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setResolvingId(alert.id); }}
+                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary/10 text-primary text-[10px] font-mono font-medium hover:bg-primary/20 transition-colors"
+                                  >
+                                    <MessageSquare className="w-3 h-3" />
+                                    Resolve Alert
+                                  </button>
+                                )}
                               </div>
                             )}
                           </div>
