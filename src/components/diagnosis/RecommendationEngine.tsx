@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Wrench, RotateCcw, Database, Users, ChevronDown, Pause, BarChart3 } from 'lucide-react';
 import { recommendations } from './mockData';
 import { StatusBadge } from './StatusBadge';
+import type { FilterState } from './DiagnosticFilters';
 
 const typeConfig = {
   retrain: { icon: RotateCcw, label: 'Retrain Model' },
@@ -12,7 +13,22 @@ const typeConfig = {
   pause: { icon: Pause, label: 'Pause Output' },
 };
 
-export function RecommendationEngine() {
+interface Props {
+  filters?: FilterState;
+}
+
+export function RecommendationEngine({ filters }: Props) {
+  const filtered = recommendations.filter(rec => {
+    if (filters) {
+      if (filters.status !== 'all' && rec.priority !== filters.status) return false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (!rec.target.toLowerCase().includes(q) && !rec.description.toLowerCase().includes(q)) return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -24,12 +40,18 @@ export function RecommendationEngine() {
         <div className="flex items-center gap-2">
           <Wrench className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Self-Repair Recommendations</h3>
+          {filtered.length !== recommendations.length && (
+            <span className="text-xs font-mono text-muted-foreground">({filtered.length}/{recommendations.length})</span>
+          )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">Suggested corrective actions to restore system integrity</p>
       </div>
 
       <div className="divide-y divide-border">
-        {recommendations.map((rec, i) => {
+        {filtered.length === 0 && (
+          <div className="p-8 text-center text-xs text-muted-foreground font-mono">No recommendations match current filters</div>
+        )}
+        {filtered.map((rec, i) => {
           const config = typeConfig[rec.type];
           const Icon = config.icon;
 

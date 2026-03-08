@@ -2,8 +2,24 @@ import { motion } from 'framer-motion';
 import { Database, Clock, AlertCircle } from 'lucide-react';
 import { dataSources } from './mockData';
 import { StatusBadge } from './StatusBadge';
+import type { FilterState } from './DiagnosticFilters';
 
-export function DataQualityPanel() {
+interface Props {
+  filters?: FilterState;
+}
+
+export function DataQualityPanel({ filters }: Props) {
+  const filtered = dataSources.filter(source => {
+    if (filters) {
+      if (filters.status !== 'all' && source.status !== filters.status) return false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (!source.name.toLowerCase().includes(q) && !source.region.toLowerCase().includes(q)) return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -15,12 +31,18 @@ export function DataQualityPanel() {
         <div className="flex items-center gap-2">
           <Database className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Data Quality</h3>
+          {filtered.length !== dataSources.length && (
+            <span className="text-xs font-mono text-muted-foreground">({filtered.length}/{dataSources.length})</span>
+          )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">Source completeness, freshness, and anomaly detection</p>
       </div>
 
       <div className="divide-y divide-border">
-        {dataSources.map((source, i) => (
+        {filtered.length === 0 && (
+          <div className="p-8 text-center text-xs text-muted-foreground font-mono">No sources match current filters</div>
+        )}
+        {filtered.map((source, i) => (
           <motion.div
             key={source.id}
             initial={{ opacity: 0, x: -10 }}
@@ -48,7 +70,6 @@ export function DataQualityPanel() {
               </div>
             </div>
 
-            {/* Completeness bar */}
             <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}

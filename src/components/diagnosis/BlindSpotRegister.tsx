@@ -2,8 +2,25 @@ import { motion } from 'framer-motion';
 import { EyeOff, Tag } from 'lucide-react';
 import { blindSpots } from './mockData';
 import { StatusBadge } from './StatusBadge';
+import type { FilterState } from './DiagnosticFilters';
 
-export function BlindSpotRegister() {
+interface Props {
+  filters?: FilterState;
+}
+
+export function BlindSpotRegister({ filters }: Props) {
+  const filtered = blindSpots.filter(spot => {
+    if (filters) {
+      if (filters.status !== 'all' && spot.severity !== filters.status) return false;
+      if (filters.domain && !spot.affectedDomains.some(d => d.toLowerCase().includes(filters.domain.toLowerCase()))) return false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (!spot.description.toLowerCase().includes(q) && !spot.category.toLowerCase().includes(q)) return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -15,12 +32,18 @@ export function BlindSpotRegister() {
         <div className="flex items-center gap-2">
           <EyeOff className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Blind Spot Register</h3>
+          {filtered.length !== blindSpots.length && (
+            <span className="text-xs font-mono text-muted-foreground">({filtered.length}/{blindSpots.length})</span>
+          )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">What Atlas does not know — surfaced, not hidden</p>
       </div>
 
       <div className="divide-y divide-border">
-        {blindSpots.map((spot, i) => (
+        {filtered.length === 0 && (
+          <div className="p-8 text-center text-xs text-muted-foreground font-mono">No blind spots match current filters</div>
+        )}
+        {filtered.map((spot, i) => (
           <motion.div
             key={spot.id}
             initial={{ opacity: 0, x: -10 }}
