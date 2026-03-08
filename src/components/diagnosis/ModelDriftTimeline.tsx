@@ -4,9 +4,25 @@ import { TrendingDown, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from 'recharts';
 import { models } from './mockData';
 import { StatusBadge } from './StatusBadge';
+import type { FilterState } from './DiagnosticFilters';
 
-export function ModelDriftTimeline() {
+interface Props {
+  filters?: FilterState;
+}
+
+export function ModelDriftTimeline({ filters }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const filtered = models.filter(model => {
+    if (filters) {
+      if (filters.status !== 'all' && model.status !== filters.status) return false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (!model.name.toLowerCase().includes(q) && !model.region.toLowerCase().includes(q)) return false;
+      }
+    }
+    return true;
+  });
 
   return (
     <motion.div
@@ -19,12 +35,18 @@ export function ModelDriftTimeline() {
         <div className="flex items-center gap-2">
           <TrendingDown className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Model Drift Monitor</h3>
+          {filtered.length !== models.length && (
+            <span className="text-xs font-mono text-muted-foreground">({filtered.length}/{models.length})</span>
+          )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">Historical accuracy, drift severity, and recalibration status</p>
       </div>
 
       <div className="divide-y divide-border">
-        {models.map((model, i) => (
+        {filtered.length === 0 && (
+          <div className="p-8 text-center text-xs text-muted-foreground font-mono">No models match current filters</div>
+        )}
+        {filtered.map((model, i) => (
           <motion.div
             key={model.id}
             initial={{ opacity: 0 }}
@@ -75,7 +97,6 @@ export function ModelDriftTimeline() {
                   className="overflow-hidden"
                 >
                   <div className="px-4 pb-4 space-y-4">
-                    {/* Chart */}
                     <div className="h-40 bg-secondary/30 rounded-lg p-3">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={model.accuracyHistory}>
@@ -97,7 +118,6 @@ export function ModelDriftTimeline() {
                       </ResponsiveContainer>
                     </div>
 
-                    {/* Explanation */}
                     <div className="bg-secondary/20 rounded-lg p-3 border border-border">
                       <p className="text-sm text-foreground/80 leading-relaxed">{model.explanation}</p>
                     </div>
