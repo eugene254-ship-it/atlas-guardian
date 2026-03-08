@@ -53,6 +53,11 @@ const Index = () => {
           </div>
         </motion.header>
 
+        {/* Alert Summary Cards */}
+        <div className="mb-6">
+          <AlertSummaryCard />
+        </div>
+
         {/* Trust Status - Full width */}
         <div className="mb-6">
           <TrustStatusPanel />
