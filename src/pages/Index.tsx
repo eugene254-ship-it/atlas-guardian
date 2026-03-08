@@ -9,6 +9,7 @@ import { PredictionReality } from '@/components/diagnosis/PredictionReality';
 import { RecommendationEngine } from '@/components/diagnosis/RecommendationEngine';
 import { BiasDetectionMap } from '@/components/diagnosis/BiasDetectionMap';
 import { ConfidenceDecayCurves } from '@/components/diagnosis/ConfidenceDecayCurves';
+import { AlertHistoryTimeline } from '@/components/diagnosis/AlertHistoryTimeline';
 import { DiagnosticFilters, type FilterState } from '@/components/diagnosis/DiagnosticFilters';
 
 const ALL_DOMAINS = [
