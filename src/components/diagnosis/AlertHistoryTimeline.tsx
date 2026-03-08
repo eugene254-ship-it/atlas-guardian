@@ -171,7 +171,7 @@ export function AlertHistoryTimeline() {
                             <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
                               {alertTypeLabels[alert.alert_type] || alert.alert_type}
                             </span>
-                            <StatusBadge status={severity} size="sm" />
+                            <StatusBadge status={severity} />
                             {alert.domain && (
                               <span className="text-[10px] font-mono text-muted-foreground">{alert.domain}</span>
                             )}

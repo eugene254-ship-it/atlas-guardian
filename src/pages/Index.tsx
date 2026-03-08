@@ -80,6 +80,11 @@ const Index = () => {
           <ConfidenceDecayCurves />
         </div>
 
+        {/* Alert History - Full width */}
+        <div className="mt-6">
+          <AlertHistoryTimeline />
+        </div>
+
         {/* Recommendations - Full width */}
         <div className="mt-6">
           <RecommendationEngine filters={filters} />
