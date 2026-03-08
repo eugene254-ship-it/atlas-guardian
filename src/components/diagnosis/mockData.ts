@@ -149,3 +149,60 @@ export const recommendations: Recommendation[] = [
   { id: 'r5', type: 'widen_uncertainty', priority: 'caution', target: 'Flood Exposure Predictor', description: 'Expand confidence intervals by 15% until model retrained', explanation: 'Current confidence intervals are too narrow given observed drift. Wider bands will prevent overconfident recommendations.' },
   { id: 'r6', type: 'pause', priority: 'degraded', target: 'Migration Flow Estimator', description: 'Pause automated policy recommendations based on migration forecasts', explanation: 'Model accuracy is below the threshold for safe automated recommendations. Human-in-the-loop review required.' },
 ];
+
+export const biasRegions: BiasRegion[] = [
+  {
+    id: 'br1', name: 'Nairobi Metro', x: 62, y: 45, severity: 'caution', skewFactor: 3.2,
+    sourceCount: 14, coverage: 85,
+    biasFactors: ['Urban overrepresentation in social media signals', 'Sensor density 4x higher than rural zones'],
+    explanation: 'Data from Nairobi is disproportionately represented in social sentiment and ground sensor feeds, creating models that overweight urban dynamics.',
+    affectedModels: ['Flood Exposure Predictor', 'Urban Heat Risk Model'],
+  },
+  {
+    id: 'br2', name: 'Western Kenya (Rural)', x: 48, y: 40, severity: 'degraded', skewFactor: 5.1,
+    sourceCount: 3, coverage: 28,
+    biasFactors: ['60% of rainfall gauges offline', 'No ground-truth agricultural data', 'Health reporting delayed 10+ days'],
+    explanation: 'Rural western Kenya is severely underrepresented. Most models assume data completeness that does not exist in this region, creating silent blind spots in flood and health predictions.',
+    affectedModels: ['Flood Exposure Predictor', 'Disease Outbreak Predictor', 'Crop Yield Forecaster'],
+  },
+  {
+    id: 'br3', name: 'Addis Ababa', x: 70, y: 35, severity: 'healthy', skewFactor: 1.4,
+    sourceCount: 11, coverage: 78,
+    biasFactors: ['Slight overrepresentation of institutional data sources'],
+    explanation: 'Data coverage is relatively balanced. Minor institutional bias from World Bank and government reporting channels.',
+    affectedModels: ['Migration Flow Estimator'],
+  },
+  {
+    id: 'br4', name: 'Horn of Africa (Rural)', x: 78, y: 30, severity: 'degraded', skewFactor: 6.8,
+    sourceCount: 2, coverage: 15,
+    biasFactors: ['Near-zero ground sensor coverage', 'Satellite-only data', 'No community-level signals'],
+    explanation: 'Migration and humanitarian models rely entirely on satellite imagery and institutional reports. No community-level data exists, making predictions about displacement patterns highly speculative.',
+    affectedModels: ['Migration Flow Estimator', 'Disease Outbreak Predictor'],
+  },
+  {
+    id: 'br5', name: 'Lagos Metro', x: 22, y: 48, severity: 'caution', skewFactor: 2.7,
+    sourceCount: 9, coverage: 62,
+    biasFactors: ['Social media signals overrepresent youth demographics', 'Economic data skewed toward formal sector'],
+    explanation: 'Lagos data captures formal economy and digitally active populations well, but misses the informal economy which drives 65% of local livelihoods.',
+    affectedModels: ['Urban Heat Risk Model'],
+  },
+  {
+    id: 'br6', name: 'Sahel Region', x: 35, y: 22, severity: 'degraded', skewFactor: 7.2,
+    sourceCount: 1, coverage: 8,
+    biasFactors: ['Single satellite source', 'No health data pipeline', 'Conflict zones block field collection'],
+    explanation: 'The Sahel is effectively a data desert for Atlas. Predictions here are extrapolated from distant regions and should be treated as highly uncertain.',
+    affectedModels: ['Crop Yield Forecaster', 'Migration Flow Estimator', 'Disease Outbreak Predictor'],
+  },
+];
+
+export const confidenceDecayData = [
+  { daysAfterIssuance: 0, 'Short-term Flood': 95, 'Medium-term Migration': 88, 'Long-range Biodiversity': 82, 'Disease Outbreak': 90, 'Crop Yield': 91 },
+  { daysAfterIssuance: 3, 'Short-term Flood': 93, 'Medium-term Migration': 85, 'Long-range Biodiversity': 78, 'Disease Outbreak': 88, 'Crop Yield': 89 },
+  { daysAfterIssuance: 7, 'Short-term Flood': 90, 'Medium-term Migration': 80, 'Long-range Biodiversity': 70, 'Disease Outbreak': 84, 'Crop Yield': 86 },
+  { daysAfterIssuance: 14, 'Short-term Flood': 84, 'Medium-term Migration': 72, 'Long-range Biodiversity': 58, 'Disease Outbreak': 78, 'Crop Yield': 80 },
+  { daysAfterIssuance: 30, 'Short-term Flood': 75, 'Medium-term Migration': 60, 'Long-range Biodiversity': 42, 'Disease Outbreak': 68, 'Crop Yield': 72 },
+  { daysAfterIssuance: 60, 'Short-term Flood': 65, 'Medium-term Migration': 45, 'Long-range Biodiversity': 30, 'Disease Outbreak': 55, 'Crop Yield': 60 },
+  { daysAfterIssuance: 90, 'Short-term Flood': 55, 'Medium-term Migration': 32, 'Long-range Biodiversity': 22, 'Disease Outbreak': 42, 'Crop Yield': 48 },
+  { daysAfterIssuance: 120, 'Short-term Flood': 45, 'Medium-term Migration': 25, 'Long-range Biodiversity': 18, 'Disease Outbreak': 35, 'Crop Yield': 38 },
+  { daysAfterIssuance: 180, 'Short-term Flood': 35, 'Medium-term Migration': 18, 'Long-range Biodiversity': 12, 'Disease Outbreak': 25, 'Crop Yield': 28 },
+];
