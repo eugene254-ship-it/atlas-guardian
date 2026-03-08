@@ -128,7 +128,7 @@ export function AlertHistoryTimeline() {
           <div className="space-y-1">
             <AnimatePresence>
               {filtered.map((alert, i) => {
-                const Icon = alertTypeIcons[alert.alert_type] || AlertTriangle;
+                
                 const isExpanded = expandedId === alert.id;
                 const severity = alert.severity as TrustStatus;
 
