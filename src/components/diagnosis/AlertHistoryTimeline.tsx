@@ -68,6 +68,30 @@ export function AlertHistoryTimeline() {
       setLoading(false);
     }
     fetchAlerts();
+
+    // Realtime subscription
+    const channel = supabase
+      .channel('diagnostic-alerts-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'diagnostic_alerts' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setAlerts((prev) => [payload.new as DiagnosticAlert, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setAlerts((prev) =>
+              prev.map((a) => (a.id === (payload.new as DiagnosticAlert).id ? (payload.new as DiagnosticAlert) : a))
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setAlerts((prev) => prev.filter((a) => a.id !== (payload.old as any).id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const filtered = alerts.filter((a) => {
