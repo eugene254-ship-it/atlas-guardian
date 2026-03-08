@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, CheckCircle2, AlertTriangle, XCircle, ChevronDown, History } from 'lucide-react';
+import { Clock, CheckCircle2, AlertTriangle, XCircle, ChevronDown, History, MessageSquare } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { TrustStatus } from './types';
 
 interface DiagnosticAlert {
