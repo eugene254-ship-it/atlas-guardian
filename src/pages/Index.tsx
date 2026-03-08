@@ -10,6 +10,7 @@ import { RecommendationEngine } from '@/components/diagnosis/RecommendationEngin
 import { BiasDetectionMap } from '@/components/diagnosis/BiasDetectionMap';
 import { ConfidenceDecayCurves } from '@/components/diagnosis/ConfidenceDecayCurves';
 import { AlertHistoryTimeline } from '@/components/diagnosis/AlertHistoryTimeline';
+import { AlertSummaryCard } from '@/components/diagnosis/AlertSummaryCard';
 import { DiagnosticFilters, type FilterState } from '@/components/diagnosis/DiagnosticFilters';
 
 const ALL_DOMAINS = [
@@ -51,6 +52,11 @@ const Index = () => {
             <span className="px-2 py-1 rounded bg-secondary">6 data sources active</span>
           </div>
         </motion.header>
+
+        {/* Alert Summary Cards */}
+        <div className="mb-6">
+          <AlertSummaryCard />
+        </div>
 
         {/* Trust Status - Full width */}
         <div className="mb-6">
