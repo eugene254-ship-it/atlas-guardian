@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      data_source_health: {
+        Row: {
+          anomaly: string | null
+          completeness: number
+          id: string
+          recorded_at: string
+          source_id: string
+          source_name: string
+          status: string
+        }
+        Insert: {
+          anomaly?: string | null
+          completeness: number
+          id?: string
+          recorded_at?: string
+          source_id: string
+          source_name: string
+          status: string
+        }
+        Update: {
+          anomaly?: string | null
+          completeness?: number
+          id?: string
+          recorded_at?: string
+          source_id?: string
+          source_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      diagnostic_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string
+          domain: string | null
+          id: string
+          resolution_note: string | null
+          resolved: boolean
+          resolved_at: string | null
+          severity: string
+          target: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description: string
+          domain?: string | null
+          id?: string
+          resolution_note?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity: string
+          target: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string
+          domain?: string | null
+          id?: string
+          resolution_note?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+          target?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      model_metrics: {
+        Row: {
+          accuracy: number
+          drift: number
+          id: string
+          model_id: string
+          model_name: string
+          recorded_at: string
+          region: string | null
+          status: string
+        }
+        Insert: {
+          accuracy: number
+          drift: number
+          id?: string
+          model_id: string
+          model_name: string
+          recorded_at?: string
+          region?: string | null
+          status: string
+        }
+        Update: {
+          accuracy?: number
+          drift?: number
+          id?: string
+          model_id?: string
+          model_name?: string
+          recorded_at?: string
+          region?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
