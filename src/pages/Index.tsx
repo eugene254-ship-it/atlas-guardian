@@ -10,6 +10,7 @@ import { RecommendationEngine } from '@/components/diagnosis/RecommendationEngin
 import { BiasDetectionMap } from '@/components/diagnosis/BiasDetectionMap';
 import { ConfidenceDecayCurves } from '@/components/diagnosis/ConfidenceDecayCurves';
 import { AlertHistoryTimeline } from '@/components/diagnosis/AlertHistoryTimeline';
+import { AlertSummaryCard } from '@/components/diagnosis/AlertSummaryCard';
 import { DiagnosticFilters, type FilterState } from '@/components/diagnosis/DiagnosticFilters';
 
 const ALL_DOMAINS = [
