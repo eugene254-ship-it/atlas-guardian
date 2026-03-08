@@ -56,3 +56,17 @@ export interface Recommendation {
   description: string;
   explanation: string;
 }
+
+export interface BiasRegion {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  severity: TrustStatus;
+  skewFactor: number;
+  sourceCount: number;
+  coverage: number;
+  biasFactors: string[];
+  explanation: string;
+  affectedModels: string[];
+}

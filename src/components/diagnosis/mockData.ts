@@ -1,4 +1,4 @@
-import type { ModelStatus, DataSource, BlindSpot, Prediction, Recommendation } from './types';
+import type { ModelStatus, DataSource, BlindSpot, Prediction, Recommendation, BiasRegion } from './types';
 
 export const models: ModelStatus[] = [
   {
