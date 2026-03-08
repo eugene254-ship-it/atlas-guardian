@@ -1,11 +1,64 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { motion } from 'framer-motion';
+import { Brain } from 'lucide-react';
+import { TrustStatusPanel } from '@/components/diagnosis/TrustStatusPanel';
+import { DataQualityPanel } from '@/components/diagnosis/DataQualityPanel';
+import { ModelDriftTimeline } from '@/components/diagnosis/ModelDriftTimeline';
+import { BlindSpotRegister } from '@/components/diagnosis/BlindSpotRegister';
+import { PredictionReality } from '@/components/diagnosis/PredictionReality';
+import { RecommendationEngine } from '@/components/diagnosis/RecommendationEngine';
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background atlas-grid-bg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Brain className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">Self-Diagnosis Dashboard</h1>
+              <p className="text-sm text-muted-foreground">
+                Atlas continuously evaluates the health, reliability, and limitations of its own intelligence systems.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 mt-3 text-xs font-mono text-muted-foreground">
+            <span className="px-2 py-1 rounded bg-secondary">Last scan: 12 min ago</span>
+            <span className="px-2 py-1 rounded bg-secondary">5 models monitored</span>
+            <span className="px-2 py-1 rounded bg-secondary">6 data sources active</span>
+          </div>
+        </motion.header>
+
+        {/* Trust Status - Full width */}
+        <div className="mb-6">
+          <TrustStatusPanel />
+        </div>
+
+        {/* Main grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DataQualityPanel />
+          <ModelDriftTimeline />
+          <BlindSpotRegister />
+          <PredictionReality />
+        </div>
+
+        {/* Recommendations - Full width */}
+        <div className="mt-6">
+          <RecommendationEngine />
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-12 pb-8 text-center">
+          <p className="text-xs text-muted-foreground font-mono">
+            ATLAS SELF-DIAGNOSIS v1.0 · Intelligence is recognizing when your answers may be failing
+          </p>
+        </footer>
       </div>
     </div>
   );
