@@ -55,6 +55,34 @@ export function AlertHistoryTimeline() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [resolveNote, setResolveNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleResolve(alertId: string) {
+    if (!resolveNote.trim()) {
+      toast.error('Please enter a resolution note');
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase
+      .from('diagnostic_alerts')
+      .update({
+        resolved: true,
+        resolved_at: new Date().toISOString(),
+        resolution_note: resolveNote.trim(),
+      })
+      .eq('id', alertId);
+
+    if (error) {
+      toast.error('Failed to resolve alert');
+    } else {
+      toast.success('Alert resolved');
+      setResolvingId(null);
+      setResolveNote('');
+    }
+    setSubmitting(false);
+  }
 
   useEffect(() => {
     async function fetchAlerts() {
