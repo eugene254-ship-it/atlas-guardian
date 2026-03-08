@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, AlertTriangle, Users } from 'lucide-react';
+import { MapPin, AlertTriangle } from 'lucide-react';
 import { biasRegions } from './mockData';
 import { StatusBadge } from './StatusBadge';
 import type { TrustStatus } from './types';

@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Brain } from 'lucide-react';
 import { TrustStatusPanel } from '@/components/diagnosis/TrustStatusPanel';
@@ -6,8 +7,23 @@ import { ModelDriftTimeline } from '@/components/diagnosis/ModelDriftTimeline';
 import { BlindSpotRegister } from '@/components/diagnosis/BlindSpotRegister';
 import { PredictionReality } from '@/components/diagnosis/PredictionReality';
 import { RecommendationEngine } from '@/components/diagnosis/RecommendationEngine';
+import { BiasDetectionMap } from '@/components/diagnosis/BiasDetectionMap';
+import { ConfidenceDecayCurves } from '@/components/diagnosis/ConfidenceDecayCurves';
+import { DiagnosticFilters, type FilterState } from '@/components/diagnosis/DiagnosticFilters';
+
+const ALL_DOMAINS = [
+  'Flood Risk', 'Agriculture', 'Migration', 'Health', 'Climate',
+  'Water Security', 'Social Stability', 'Urban Risk', 'Ecosystem Health',
+  'Conservation', 'Humanitarian',
+];
 
 const Index = () => {
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    status: 'all',
+    domain: '',
+  });
+
   return (
     <div className="min-h-screen bg-background atlas-grid-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -40,17 +56,32 @@ const Index = () => {
           <TrustStatusPanel />
         </div>
 
+        {/* Filters */}
+        <div className="mb-6">
+          <DiagnosticFilters filters={filters} onChange={setFilters} domains={ALL_DOMAINS} />
+        </div>
+
+        {/* Bias Detection Map - Full width */}
+        <div className="mb-6">
+          <BiasDetectionMap />
+        </div>
+
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DataQualityPanel />
-          <ModelDriftTimeline />
-          <BlindSpotRegister />
-          <PredictionReality />
+          <DataQualityPanel filters={filters} />
+          <ModelDriftTimeline filters={filters} />
+          <BlindSpotRegister filters={filters} />
+          <PredictionReality filters={filters} />
+        </div>
+
+        {/* Confidence Decay Curves - Full width */}
+        <div className="mt-6">
+          <ConfidenceDecayCurves />
         </div>
 
         {/* Recommendations - Full width */}
         <div className="mt-6">
-          <RecommendationEngine />
+          <RecommendationEngine filters={filters} />
         </div>
 
         {/* Footer */}
