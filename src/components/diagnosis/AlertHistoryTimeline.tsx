@@ -272,6 +272,44 @@ export function AlertHistoryTimeline() {
                                 <p className="text-foreground/70">{alert.resolution_note}</p>
                               </div>
                             )}
+                            {!alert.resolved && (
+                              <div className="pt-2 border-t border-border">
+                                {resolvingId === alert.id ? (
+                                  <div className="space-y-2">
+                                    <textarea
+                                      value={resolveNote}
+                                      onChange={(e) => setResolveNote(e.target.value)}
+                                      placeholder="Describe how this was resolved..."
+                                      className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                                      rows={2}
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleResolve(alert.id); }}
+                                        disabled={submitting}
+                                        className="px-2.5 py-1 rounded bg-trust-healthy/15 text-trust-healthy text-[10px] font-mono font-medium hover:bg-trust-healthy/25 transition-colors disabled:opacity-50"
+                                      >
+                                        {submitting ? 'Saving...' : 'Confirm Resolve'}
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setResolvingId(null); setResolveNote(''); }}
+                                        className="px-2.5 py-1 rounded text-muted-foreground text-[10px] font-mono hover:text-foreground transition-colors"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setResolvingId(alert.id); }}
+                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary/10 text-primary text-[10px] font-mono font-medium hover:bg-primary/20 transition-colors"
+                                  >
+                                    <MessageSquare className="w-3 h-3" />
+                                    Resolve Alert
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </motion.div>
                       )}
