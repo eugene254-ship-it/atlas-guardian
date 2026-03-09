@@ -13,6 +13,10 @@ import { AlertHistoryTimeline } from '@/components/diagnosis/AlertHistoryTimelin
 import { AlertSummaryCard } from '@/components/diagnosis/AlertSummaryCard';
 import { AlertFrequencyChart } from '@/components/diagnosis/AlertFrequencyChart';
 import { DiagnosticFilters, type FilterState } from '@/components/diagnosis/DiagnosticFilters';
+import { DataExportPanel } from '@/components/diagnosis/DataExportPanel';
+import { NotificationPreferences } from '@/components/diagnosis/NotificationPreferences';
+import { ModelComparison } from '@/components/diagnosis/ModelComparison';
+import { HistoricalPlayback } from '@/components/diagnosis/HistoricalPlayback';
 
 const ALL_DOMAINS = [
   'Flood Risk', 'Agriculture', 'Migration', 'Health', 'Climate',
@@ -36,15 +40,21 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Brain className="w-6 h-6 text-primary" />
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Brain className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">Self-Diagnosis Dashboard</h1>
+                <p className="text-sm text-muted-foreground">
+                  Atlas continuously evaluates the health, reliability, and limitations of its own intelligence systems.
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground tracking-tight">Self-Diagnosis Dashboard</h1>
-              <p className="text-sm text-muted-foreground">
-                Atlas continuously evaluates the health, reliability, and limitations of its own intelligence systems.
-              </p>
+            <div className="flex items-center gap-2 shrink-0 mt-1">
+              <NotificationPreferences />
+              <DataExportPanel />
             </div>
           </div>
           <div className="flex items-center gap-3 mt-3 text-xs font-mono text-muted-foreground">
@@ -82,6 +92,11 @@ const Index = () => {
           <PredictionReality filters={filters} />
         </div>
 
+        {/* Model Comparison - Full width */}
+        <div className="mt-6">
+          <ModelComparison />
+        </div>
+
         {/* Confidence Decay Curves - Full width */}
         <div className="mt-6">
           <ConfidenceDecayCurves />
@@ -95,6 +110,11 @@ const Index = () => {
         {/* Alert History - Full width */}
         <div className="mt-6">
           <AlertHistoryTimeline />
+        </div>
+
+        {/* Historical Playback - Full width */}
+        <div className="mt-6">
+          <HistoricalPlayback />
         </div>
 
         {/* Recommendations - Full width */}
