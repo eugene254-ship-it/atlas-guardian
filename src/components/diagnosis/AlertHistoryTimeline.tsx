@@ -109,12 +109,13 @@ export function AlertHistoryTimeline() {
           if (payload.eventType === 'INSERT') {
             const newAlert = payload.new as DiagnosticAlert;
             setAlerts((prev) => [newAlert, ...prev]);
-            // In-app notification for degraded alerts
-            if (newAlert.severity === 'degraded') {
-              toast.error(`🚨 Degraded: ${newAlert.title}`, {
-                description: newAlert.description,
-                duration: 8000,
-              });
+            // In-app notification based on preferences
+            if (shouldNotify(newAlert.alert_type, newAlert.severity)) {
+              const icon = newAlert.severity === 'degraded' ? '🚨' : '⚠️';
+              toast[newAlert.severity === 'degraded' ? 'error' : 'warning'](
+                `${icon} ${newAlert.title}`,
+                { description: newAlert.description, duration: 8000 }
+              );
             }
           } else if (payload.eventType === 'UPDATE') {
             setAlerts((prev) =>
