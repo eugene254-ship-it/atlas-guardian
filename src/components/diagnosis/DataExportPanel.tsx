@@ -166,6 +166,7 @@ export function DataExportPanel() {
               {exporting ? 'Exporting...' : 'Download'}
             </button>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
