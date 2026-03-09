@@ -4,6 +4,7 @@ import { Clock, CheckCircle2, AlertTriangle, XCircle, ChevronDown, History, Mess
 import { StatusBadge } from './StatusBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { shouldNotify } from './NotificationPreferences';
 import type { TrustStatus } from './types';
 
 interface DiagnosticAlert {
