@@ -1,10 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingDown, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { TrendingDown, ChevronDown, ChevronUp, RefreshCw, Database } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from 'recharts';
-import { models } from './mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { models as mockModels } from './mockData';
 import { StatusBadge } from './StatusBadge';
 import type { FilterState } from './DiagnosticFilters';
+import type { TrustStatus } from './types';
+
+interface DBModelMetric {
+  id: string;
+  model_id: string;
+  model_name: string;
+  accuracy: number;
+  drift: number;
+  status: string;
+  region: string | null;
+  recorded_at: string;
+}
+
+interface DisplayModel {
+  id: string;
+  name: string;
+  status: TrustStatus;
+  accuracy: number;
+  drift: number;
+  region: string;
+  lastCalibrated: string;
+  cause: string;
+  recommendation: string;
+  explanation: string;
+  accuracyHistory: { date: string; accuracy: number }[];
+  source: 'db' | 'mock';
+}
 
 interface Props {
   filters?: FilterState;
@@ -12,8 +40,70 @@ interface Props {
 
 export function ModelDriftTimeline({ filters }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [dbModels, setDbModels] = useState<DisplayModel[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = models.filter(model => {
+  useEffect(() => {
+    async function fetchDBModels() {
+      const { data } = await supabase
+        .from('model_metrics')
+        .select('*')
+        .order('recorded_at', { ascending: true });
+
+      if (data && data.length > 0) {
+        // Group by model_id
+        const byModel = new Map<string, DBModelMetric[]>();
+        for (const row of data as DBModelMetric[]) {
+          if (!byModel.has(row.model_id)) byModel.set(row.model_id, []);
+          byModel.get(row.model_id)!.push(row);
+        }
+
+        const models: DisplayModel[] = [];
+        for (const [modelId, records] of byModel) {
+          const latest = records[records.length - 1];
+          const history = records.slice(-8).map(r => ({
+            date: new Date(r.recorded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            accuracy: Math.round(r.accuracy * 100),
+          }));
+
+          models.push({
+            id: modelId,
+            name: latest.model_name,
+            status: latest.status as TrustStatus,
+            accuracy: Math.round(latest.accuracy * 100),
+            drift: Math.round(latest.drift * 100),
+            region: latest.region || 'Global',
+            lastCalibrated: new Date(latest.recorded_at).toISOString().split('T')[0],
+            cause: latest.drift > 0.2 ? 'Significant drift detected in recent predictions' : 'Minor variance within acceptable range',
+            recommendation: latest.drift > 0.2 ? 'Retraining recommended' : 'Continue monitoring',
+            explanation: `Model ${latest.model_name} has ${latest.status} status with ${Math.round(latest.accuracy * 100)}% accuracy and ${Math.round(latest.drift * 100)}% drift.`,
+            accuracyHistory: history,
+            source: 'db',
+          });
+        }
+        setDbModels(models);
+      }
+      setLoading(false);
+    }
+    fetchDBModels();
+
+    const channel = supabase
+      .channel('model-drift-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'model_metrics' }, fetchDBModels)
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // Combine DB models and mock models (DB takes precedence)
+  const dbModelNames = new Set(dbModels.map(m => m.name.toLowerCase()));
+  const mockOnlyModels: DisplayModel[] = mockModels
+    .filter(m => !dbModelNames.has(m.name.toLowerCase()))
+    .map(m => ({ ...m, source: 'mock' as const }));
+  
+  const allModels = [...dbModels, ...mockOnlyModels];
+
+  const filtered = allModels.filter(model => {
     if (filters) {
       if (filters.status !== 'all' && model.status !== filters.status) return false;
       if (filters.search) {
@@ -35,14 +125,21 @@ export function ModelDriftTimeline({ filters }: Props) {
         <div className="flex items-center gap-2">
           <TrendingDown className="w-4 h-4 text-accent" />
           <h3 className="font-semibold text-foreground">Model Drift Monitor</h3>
-          {filtered.length !== models.length && (
-            <span className="text-xs font-mono text-muted-foreground">({filtered.length}/{models.length})</span>
+          {loading && <RefreshCw className="w-3 h-3 text-muted-foreground animate-spin" />}
+          {filtered.length !== allModels.length && (
+            <span className="text-xs font-mono text-muted-foreground">({filtered.length}/{allModels.length})</span>
+          )}
+          {dbModels.length > 0 && (
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent ml-auto">
+              <Database className="w-2.5 h-2.5 inline mr-1" />
+              {dbModels.length} live
+            </span>
           )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">Historical accuracy, drift severity, and recalibration status</p>
       </div>
 
-      <div className="divide-y divide-border">
+      <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
         {filtered.length === 0 && (
           <div className="p-8 text-center text-xs text-muted-foreground font-mono">No models match current filters</div>
         )}
@@ -62,6 +159,9 @@ export function ModelDriftTimeline({ filters }: Props) {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium text-sm text-foreground">{model.name}</span>
                     <StatusBadge status={model.status} />
+                    {model.source === 'db' && (
+                      <span className="text-[9px] font-mono px-1 py-0.5 rounded bg-accent/10 text-accent">LIVE</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="font-mono">{model.region}</span>
