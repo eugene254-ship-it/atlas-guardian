@@ -87,6 +87,11 @@ const Index = () => {
           <ConfidenceDecayCurves />
         </div>
 
+        {/* Alert Frequency Chart - Full width */}
+        <div className="mt-6">
+          <AlertFrequencyChart />
+        </div>
+
         {/* Alert History - Full width */}
         <div className="mt-6">
           <AlertHistoryTimeline />
